@@ -37,7 +37,6 @@ def get_dataset_dataloader(
     num_workers: int,
     train: bool = True,
 ) -> Tuple[Dataset, DataLoader]:
-
     dataset = ComplexDataset(keys, data_dir, id_to_y)
     dataloader = DataLoader(
         dataset,
