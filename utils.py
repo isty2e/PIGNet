@@ -1,6 +1,6 @@
 import pickle
 import subprocess
-from typing import Any, Dict, List, Union, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 import torch
 import torch.nn as nn

@@ -1,7 +1,4 @@
-import argparse
 import os
-import pickle
-import random
 import sys
 import time
 from typing import Dict, Iterable, List, Tuple, Union
@@ -10,13 +7,13 @@ import numpy as np
 import torch
 import torch.nn as nn
 from scipy import stats
-from sklearn.metrics import r2_score, roc_auc_score
+from sklearn.metrics import r2_score
 from torch.utils.tensorboard import SummaryWriter
 
 import arguments
-import models
 import utils
 from dataset import get_dataset_dataloader
+from model import PIGNet
 
 args = arguments.parser(sys.argv)
 if not args.restart_file:
@@ -184,15 +181,7 @@ train_keys3, test_keys3, id_to_y3 = utils.read_data(args.filename3, args.key_dir
 train_keys4, test_keys4, id_to_y4 = utils.read_data(args.filename4, args.key_dir4)
 
 # Model
-if args.model == "pignet":
-    model = models.PIGNet(args)
-elif args.model == "gnn":
-    model = models.GNN(args)
-elif args.model == "cnn3d_kdeep":
-    model = models.CNN3D_KDEEP(args)
-else:
-    print(f"No {args.model} model")
-    exit(-1)
+model = PIGNet(args)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = utils.initialize_model(model, device, args.restart_file)

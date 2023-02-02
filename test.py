@@ -1,26 +1,21 @@
-import argparse
-import random
-
-import utils
-
-random.seed(0)
-import glob
 import os
 import pickle
+import random
 import sys
 import time
-from collections import Counter
 
 import numpy as np
 import torch
 import torch.nn as nn
 from scipy import stats
-from sklearn.metrics import r2_score, roc_auc_score
-from torch.utils.data import DataLoader
+from sklearn.metrics import r2_score
 
 import arguments
-import models
+import utils
 from dataset import get_dataset_dataloader
+from model import PIGNet
+
+random.seed(0)
 
 args = arguments.parser(sys.argv)
 print(args)
@@ -38,15 +33,7 @@ with open(args.key_dir + "/test_keys.pkl", "rb") as f:
 # model
 cmd = utils.set_cuda_visible_device(args.ngpu)
 os.environ["CUDA_VISIBLE_DEVICES"] = cmd
-if args.model == "pignet":
-    model = models.PIGNet(args)
-elif args.model == "gnn":
-    model = models.GNN(args)
-elif args.model == "cnn3d_kdeep":
-    model = models.CNN3D_KDEEP(args)
-else:
-    print(f"No {args.model} model")
-    exit(-1)
+model = PIGNet(args)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model = utils.initialize_model(model, device, args.restart_file)
 
@@ -101,7 +88,7 @@ for i_batch, sample in enumerate(test_data_loader):
         test_true[key] = affinity[idx]
 
         if mc_dropout:
-            mc_preds_i = mc_preds[i].sum(-1)
+            mc_preds_i = mc_preds[idx].sum(-1)
             test_pred[key] = np.mean(mc_preds, axis=0)
             epi_var_dict[key] = np.var(mc_preds_i, axis=0)
         else:
